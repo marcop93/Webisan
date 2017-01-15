@@ -1,0 +1,21 @@
+{
+    "name": "marcop93/webisan",
+    "description": "Web interface for Laravel Artisan",
+    "version": "dev-master",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Marco Pinheiro",
+            "email": "laravel@marcopinheiro.com",
+            "homepage": "https://marcopinheiro.com"
+        }
+    ],
+    "require": {
+        "laravelcollective/html":"^5.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Marcop93\\Webisan\\": "src/"
+        }
+    }
+}
