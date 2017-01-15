@@ -11,7 +11,7 @@ Bestmomo is the guy who really started this, without is project, this didn't hap
 
 Run: 
 ```
-    composer require marcop93/webisan
+    composer require marcop93/webisan dev-master
 ```
 
 The next required step is to add the service provider to config/app.php :
