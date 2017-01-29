@@ -67,23 +67,21 @@ class WebisanController extends Controller {
         $currentOption = "settings";
         $commandsMenu = $this->getCommandsArray();
 
-        $commands = $this->getCommandsArray(false);
+        $commands = $this->getCommandsArray(false, false);
         $settings = config('webisan');
         $commandsSelect = [];
-        $commandsSelected = [];
 
         foreach ($commands as $commandGroup) {
             foreach ($commandGroup["subcommands"] as $command) {
-                $commandsSelect[$commandGroup["title"]][$command["name"]] = $command["name"];
-            }
-        }
-        if (is_array($settings["ignore"]) || is_object($settings["ignore"])) {
-            foreach ($settings["ignore"] as $commandName => $commandValue) {
-                $commandsSelected[$commandName] = $commandName;
+                $commandsSelect[$commandGroup["title"]][$command["name"]]["name"] = $command["name"];
+                if (array_has($settings["ignore"], $command["name"]))
+                    $commandsSelect[$commandGroup["title"]][$command["name"]]["selected"] = "selected";
+                else
+                    $commandsSelect[$commandGroup["title"]][$command["name"]]["selected"] = "";
             }
         }
 
-        return view("Webisan::settings",compact("commandsMenu","commands","currentOption","settings","commandsSelect","commandsSelected"));
+        return view("Webisan::settings",compact("commandsMenu","commands","currentOption","settings","commandsSelect"));
     }
     public function settingsSave(Request $request) {
         $settings = config('webisan');
@@ -103,7 +101,7 @@ class WebisanController extends Controller {
         else
             Session::flash("settings","success");
 
-        return redirect()->back();
+        return redirect()->action('\Marcop93\Webisan\WebisanController@settings');
     }
     public function search(Request $request) {
         $commandsToReturn = array();
@@ -125,15 +123,16 @@ class WebisanController extends Controller {
 
         return response()->json($commandsToReturn, 200);
     }
-    private function getCommandsArray($filtered = true) {
+    private function getCommandsArray($filtered = true, $html = true) {
         $ignoreList = config('webisan.ignore');
         $commandsRaw = [];
         $commandsList = ["other:*"=> array(
             "name"          => "other:*",
             "link"          => "other",
-            "title"         => "+ <span class='hidden-sm-up'>Other</span>",
             "subcommands"   => array()
         )];
+        $commandsList["other:*"]["title"] = ($html) ? "+ <span class='hidden-sm-up'>Other</span>" : "Other Commands";
+
         foreach (Artisan::all() as $name=>$command) {
             if (!isset($ignoreList[$name]) || !$filtered) {
                 $commandsRaw[$name] = array(
@@ -152,7 +151,6 @@ class WebisanController extends Controller {
         foreach ($commandsRaw as $command) {
             if (str_contains($command["name"], ":")) {
                 $prefix = strtok($command["name"], ':');
-
                 if (!array_key_exists($prefix . ":*",$commandsList)) {
                     $commandsList[$prefix . ":*"] = array(
                         "name"          => $prefix . ":*",
@@ -160,12 +158,18 @@ class WebisanController extends Controller {
                         "title"         => $prefix,
                         "subcommands"   => array($command["name"] => $command)
                     );
-                } else {
+                } else
                     $commandsList[$prefix . ":*"]["subcommands"][$command["name"]] = $command;
-                }
             } else if (!str_contains($command["name"], ":*"))
                 $commandsList["other:*"]["subcommands"][] = $command;
             unset($commandsList[$command["name"]]);
+        }
+
+        foreach ($commandsList["other:*"]["subcommands"] as $key=>$command) {
+            if (array_key_exists($command["name"] . ":*",$commandsList)) {
+                $commandsList[$command["name"] . ":*"]["subcommands"][] = $command;
+                unset($commandsList["other:*"]["subcommands"][$key]);
+            }
         }
 
         foreach ($commandsList as $key=>$command) {

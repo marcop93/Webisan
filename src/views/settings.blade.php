@@ -19,41 +19,54 @@
         @endif
     @endif
 
-    {{ Form::open(array('url' => action('\Marcop93\Webisan\WebisanController@settingsSave'))) }}
-
-
-    <h4>Settings</h4>
-    <div class="row">
-        <div class="col-xs-12 col-md-6">
-            <div class="card">
-                <div class="card-header h6" >
-                    Ignored Commands
-                </div>
-                <div id="ignored">
-                    <div class="card-block">
-                        {{ Form::select("ignore[]", $commandsSelect, $commandsSelected, ["multiple"=>true,"style"=>"width:100%;"]) }}
+    <form method="post" action="{{ action('\Marcop93\Webisan\WebisanController@settingsSave') }}">
+        {!! method_field('post') !!}
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <h4>Settings</h4>
+        <div class="row">
+            <div class="col-xs-12 col-md-6">
+                <div class="card">
+                    <div class="card-header h6" >
+                        Ignored Commands
+                    </div>
+                    <div id="ignored">
+                        <div class="card-block">
+                            <select name="ignore[]" multiple="multiple" class="form-control">
+                                @if (isset($commandsSelect))
+                                    @foreach ($commandsSelect as $commandGroupKey=>$commandGroup)
+                                        <optgroup label="{{ $commandGroupKey }}">
+                                            @foreach ($commandGroup as $command)
+                                                <option value="{{ $command["name"] }}" {{ $command["selected"] }}>
+                                                    {{ $command["name"] }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xs-12 col-md-6">
-            <div class="card">
-                <div class="card-header h6">
-                    Custom Routes
-                </div>
-                <div id="custom-routes">
-                    <div class="card-block">
-                        {{ Form::checkbox("customRoutes", null, $settings["customRoutes"]) }} Use custom routes<br>
-                        Make sure to add the Webisan routes to your router file or you're going to lose access.
+            <div class="col-xs-12 col-md-6">
+                <div class="card">
+                    <div class="card-header h6">
+                        Custom Routes
+                    </div>
+                    <div id="custom-routes">
+                        <div class="card-block">
+                            <input type="checkbox" name="customRoutes" @if ($settings["customRoutes"]) checked @endif>
+                            Use custom routes<br>
+                            Make sure to add the Webisan routes to your router file or you're going to lose access.
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="col-xs-12">
+                <button type="submit" class="btn btn-primary pull-right">Save settings</button>
+            </div>
         </div>
-    </div>
-
-    <br>
-    {!! Form::submit('Guardar definições',["class"=>"btn btn-primary"]) !!}
-    {!! Form::close() !!}
+    </form>
     <hr>
     <div class="card">
         <div class="card-header h6">

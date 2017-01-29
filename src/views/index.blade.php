@@ -52,8 +52,8 @@
         <div class="container-fluid">
             @if (session("output") && session("command") && session("input") && session("type"))
                 <div class="col-xs-12">
-                    <div class="card card-inverse card-{{ session("type") }} command-result" data-toggle="collapse" href="#command-result-content" aria-expanded="false" aria-controls="command-result-content">
-                        <div class="card-header">
+                    <div class="card card-inverse card-{{ session("type") }} command-result">
+                        <div class="card-header" data-toggle="collapse" href="#command-result-content" aria-expanded="false" aria-controls="command-result-content">
                             <span class="text-uppercase">
                                 {{ session('command') }}
                             </span>
@@ -63,8 +63,10 @@
                                 was successful
                             @endif
                         </div>
-                        <div class="card-content in" id="command-result-content">
-                            <pre>{!! session('input') !!}<br>{!! session('output') !!}</pre>
+                        <div class="collapse in" id="command-result-content">
+                            <div class="card-block">
+                                <pre>{!! session('input') !!}<br>{!! session('output') !!}</pre>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -95,11 +97,11 @@
                 font-weight: 600;
                 background-color: #FFF;
             }
-            .command-result .card-content {
+            #command-result-content .card-block {
                 padding: 10px 20px;
                 background-color: #000;
             }
-            .command-result .card-content pre {
+            #command-result-content .card-block pre {
                 color: #fff;
             }
         </style>
